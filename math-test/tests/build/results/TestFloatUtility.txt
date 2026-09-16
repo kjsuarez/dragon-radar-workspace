@@ -1,0 +1,11 @@
+tests/TestFloatUtility.c:126:test_positive_greater_than_one:PASS
+tests/TestFloatUtility.c:127:test_positive_less_than_one:PASS
+tests/TestFloatUtility.c:128:test_negative_more_than_one:PASS
+tests/TestFloatUtility.c:129:test_negative_less_than_one:PASS
+tests/TestFloatUtility.c:130:test_rhumb_bearing_NW_hemisphere:PASS
+tests/TestFloatUtility.c:131:test_rhumb_bearing_NE_hemisphere:PASS
+tests/TestFloatUtility.c:132:test_rhumb_bearing_SW_hemisphere:PASS
+
+-----------------------
+7 Tests 0 Failures 0 Ignored 
+OK
