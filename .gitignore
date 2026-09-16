@@ -1,3 +1,7 @@
 unity
 .vscode
 *.code-workspace
+*.elf
+*.hex
+*.o
+*.out
