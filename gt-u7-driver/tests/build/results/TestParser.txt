@@ -1,0 +1,7 @@
+tests/TestParser.c:49:test_x:PASS
+tests/TestParser.c:50:test_input_state_initialization:PASS
+tests/TestParser.c:42:test_basic_fixed_point_assertions:FAIL: Expected -146954260 Was 0
+
+-----------------------
+3 Tests 1 Failures 0 Ignored 
+FAIL
