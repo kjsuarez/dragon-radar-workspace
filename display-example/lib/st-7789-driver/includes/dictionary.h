@@ -1,0 +1,1 @@
+void lookup(char character, char *output);
