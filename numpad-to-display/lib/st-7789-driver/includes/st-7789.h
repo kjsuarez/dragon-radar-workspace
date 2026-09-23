@@ -41,3 +41,5 @@ extern void clearDisplay(void);
 extern void firstChar(void);
 void displayChar(uint16_t x, uint16_t y, uint16_t color, char character);
 void displayStr(uint16_t x, uint16_t y, uint16_t color, char str[]);
+void displaySubstr(uint16_t x, uint16_t y, uint16_t txt_color, uint16_t bck_color, uint8_t strt_i, uint8_t end_i, char str[]);
+void displayColorChar(uint16_t x, uint16_t y, uint16_t txt_color, uint16_t bck_color, char character);

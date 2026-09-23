@@ -149,6 +149,48 @@ void displayChar(uint16_t x, uint16_t y, uint16_t color, char character){
     }
 }
 
+void displayColorChar(uint16_t x, uint16_t y, uint16_t txt_color, uint16_t bck_color, char character){
+    char char_ary[8];
+    lookup(character, char_ary);
+
+    st7789_command(CASET);
+    st7789_data(x >> 8); // start word
+    st7789_data(x & 0xFF);
+
+    st7789_data((x + 0x7) >> 8); // end word
+    st7789_data((x + 0x7) & 0xFF);
+
+    st7789_command(RASET);
+    st7789_data(y >> 8); // start word
+    st7789_data(y & 0xFF);
+
+    st7789_data((y + 0x7) >> 8); // end word
+    st7789_data((y + 0x7) & 0xFF);
+
+    st7789_command(RAMWR);
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        for (uint8_t j = 8; j > 0; j--)
+        {
+            if (char_ary[i] & (1 << (j - 1)))
+            {
+                st7789_data(txt_color >> 8);
+                st7789_data(txt_color & 0xFF);
+            } else {
+                st7789_data(bck_color >> 8);
+                st7789_data(bck_color & 0xFF);
+            }
+        }
+    }
+}
+
+void displaySubstr(uint16_t x, uint16_t y, uint16_t txt_color, uint16_t bck_color, uint8_t strt_i, uint8_t end_i, char str[]){
+    for (uint16_t i = strt_i; i < end_i; i++){
+        if (str[i] == '\0') return;
+        displayColorChar(x + (i * 8), y, txt_color, bck_color, str[i]);
+    }
+}
+
 void displayStr(uint16_t x, uint16_t y, uint16_t color, char str[]){
     for (uint16_t i = 0; str[i] != '\0'; i++){
         displayChar(x + (i * 8), y, color, str[i]);
