@@ -9,32 +9,39 @@
 
 void handleOpposite(Nav *nav){
     // add '-'
-    if (nav->destination_buffer[0] != '-') {
-        nav->destination_buffer[nav->buffer_i] = ' ';
-        for (uint8_t i = nav->buffer_i; i-- > 0;){
+    if (nav->destination_buffer[0] != '-'){
+        for (uint8_t i = LAT_BUFFER_SIZE - 1; i-- > 0;){
             nav->destination_buffer[i + 1] = nav->destination_buffer[i];
-            nav->destination_buffer[i] = ' ';
         }
         nav->destination_buffer[0] = '-';
         nav->buffer_i++;
     } else { // remove '-'
-        // nav->destination_buffer[nav->buffer_i] = ' ';
-        nav->buffer_i--;
+        if (nav->buffer_i > 0)
+        {
+            nav->buffer_i--;
+        }
 
         for (uint8_t i = 0; i < LAT_BUFFER_SIZE; i++){
             nav->destination_buffer[i] = nav->destination_buffer[i + 1];
         }
-        nav->destination_buffer[nav->buffer_i] = ' ';
-        nav->destination_buffer[nav->buffer_i + 1] = ' ';
+
+        nav->destination_buffer[LAT_BUFFER_SIZE] = ' ';
     }
     *(nav->display_status) |= 1;
 }
 
 void handleBckSpc(Nav *nav){
     if (nav->buffer_i > 0){
-        nav->destination_buffer[nav->buffer_i] = ' ';
+        nav->destination_buffer[nav->buffer_i] = '0';
+        if (nav->destination_buffer[nav->buffer_i - 1] == '-'){
+            return;
+        }
         nav->buffer_i--;
-        nav->destination_buffer[nav->buffer_i] = ' ';
+        // Always skip over decimal point
+        if (nav->destination_buffer[nav->buffer_i] == '.'){
+            nav->buffer_i--;
+        }
+        // nav->destination_buffer[nav->buffer_i] = '0';
     }
 }
 
@@ -59,6 +66,10 @@ void handle_input(char button_press, Nav *nav){
         {
             nav->destination_buffer[nav->buffer_i] = button_press;
             nav->buffer_i++;
+            // Always skip over decimal point
+            if (nav->destination_buffer[nav->buffer_i] == '.'){
+                nav->buffer_i++;
+            }
             *(nav->display_status) |= 1;
         }
     }
@@ -167,5 +178,6 @@ int main(void){
         
         handle_input(debounced_press, &nav);
         handleDisplay(debounced_press, &nav);
+    }
     return 0;
 }
