@@ -20,7 +20,8 @@ typedef struct nav{
     int course_over_ground;
     int distance_to_destination;
     char *current_position_buffer;
-    char *destination_buffer;
+    char *dest_lat_buffer;
+    char *dest_lon_buffer;
     volatile uint8_t *display_status;
     uint8_t buffer_i;
     char status;
