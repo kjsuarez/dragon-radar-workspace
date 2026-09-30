@@ -25,7 +25,8 @@
 #define LAST_ROW_ADDRESS_START 0x01
 #define LAST_ROW_ADDRESS_END 0x3F
 #define LAST_ROW_ADDRESS 0x13F
-
+#define DEST_LAT_CLMN_START 0x00
+#define DEST_LON_CLMN_START 0x58 // (LAT_BUFFER_SIZE + 1) * 8
 
 // colors
 #define RED 0xf800
