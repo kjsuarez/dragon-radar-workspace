@@ -31,18 +31,17 @@ void handleOpposite(Nav *nav){
             active_buffer[i + 1] = active_buffer[i];
         }
         active_buffer[0] = '-';
-        relevant_index = setLatIndex(relevant_index, latIndex(relevant_index) + 1);
+        relevant_index = increment_relevant_index(nav, 1);
     } else { // remove '-'
-        if (latIndex(relevant_index) > 0)
-        {
-            relevant_index = setLatIndex(relevant_index, latIndex(relevant_index) - 1);
+        if (relevant_index > 0){
+            relevant_index = increment_relevant_index(nav, -1);
         }
 
         for (uint8_t i = 0; i < max_length; i++){
             active_buffer[i] = active_buffer[i + 1];
         }
 
-        active_buffer[max_length] = ' ';
+        active_buffer[max_length -1 ] = ' ';
     }    
     *(nav->display_status) |= 1;
 }
@@ -66,17 +65,15 @@ void handleBckSpc(Nav *nav){
         if (active_buffer[relevant_index - 1] == '-'){
             return;
         }
-        relevant_index--;
+        relevant_index = increment_relevant_index(nav, -1);
         // Always skip over decimal point
         if (active_buffer[relevant_index] == '.'){
-            relevant_index--;
+            increment_relevant_index(nav, -1);
         }
     }
 }
 
 void handleDigit(Nav *nav, char button_press){
-    printString("handle digit");
-    printString("\n");
     uint8_t relevant_index = 0;
     char *active_buffer;
     uint8_t max_length;
@@ -85,32 +82,24 @@ void handleDigit(Nav *nav, char button_press){
     {
         relevant_index = latIndex(nav->buffer_i);
         active_buffer = nav->dest_lat_buffer;
-        max_length = LAT_BUFFER_SIZE;
+        max_length = nav->dest_lon_buffer[0] == '-' ? LAT_BUFFER_SIZE - 1 : LAT_BUFFER_SIZE - 2;
     }else{
         relevant_index = lonIndex(nav->buffer_i);
         active_buffer = nav->dest_lon_buffer;
-        max_length = LON_BUFFER_SIZE;
+        max_length = nav->dest_lon_buffer[0] == '-' ? LON_BUFFER_SIZE - 1 : LON_BUFFER_SIZE - 2;
     }
     active_buffer[relevant_index] = button_press;
 
-    printString("relevant_index: ");
-    printByte(relevant_index);
-    printString(", ");
-    printString("max length: ");
-    printByte(max_length);
-    printString("\n");
-    if (relevant_index >= max_length - 1)
-    {
+    if (relevant_index >= max_length){
         *(nav->display_status) |= 1;
         handleEnter(nav);
+        return;
     }
 
-    // relevant_index++;
-    relevant_index = increment_relevant_index(nav);
+    relevant_index = increment_relevant_index(nav, 1);
     // Always skip over decimal point
     if (active_buffer[relevant_index] == '.'){
-        // relevant_index++;
-        relevant_index = increment_relevant_index(nav);
+        relevant_index = increment_relevant_index(nav, 1);
     }
     
     *(nav->display_status) |= 1;
@@ -138,13 +127,16 @@ void handleEnter(Nav *nav){
     }
 }
 
-void handle_input(char button_press, Nav *nav){
-    // enter
-    // clear
-    // -      ✓
-    // bckspc ✓
-    // digit  
+void handleClear(Nav *nav){
+    // set lat index
+    // set lat buffer
+    for (uint8_t i = 0; i < LON_BUFFER_SIZE; i++){
+        nav->dest_lon_buffer[i] = LON_BUFFER_BASELINE[i];
+    }
+    nav->buffer_i = setLonIndex(nav->buffer_i, 0);
+}
 
+void handle_input(char button_press, Nav *nav){
     if (last_input != button_press){
         last_input = button_press;
         // minus sign: toggles '-' at the front of the buffer
@@ -154,6 +146,10 @@ void handle_input(char button_press, Nav *nav){
         }
         if (last_input == 'B'){
             handleBckSpc(nav);
+            return;
+        }
+        if (last_input == 'C'){
+            handleClear(nav);
             return;
         }
         if (button_press != 0){
@@ -238,24 +234,15 @@ void init_timer(void){
     TCCR0B |= (1 << CS02) | (1 << CS00);
 }
 
-uint8_t increment_relevant_index(Nav *nav){
+uint8_t increment_relevant_index(Nav *nav, int8_t amount){
     // is it for lat buffer or lon buffer?
-    printString("Display status");
-    printBinaryByte(*(nav->display_status));
-    printString("\n");
     uint8_t result = 0;
     if (!(*(nav->display_status) & (1 << LATLON_FOCUS)))
     {
-        printString("Buffer index\n");
-        printBinaryByte(nav->buffer_i);
-        printString("\n");
-        result = latIndex(nav->buffer_i) + 1; 
+        result = latIndex(nav->buffer_i) + amount;
         nav->buffer_i = setLatIndex(nav->buffer_i, result);
-        printBinaryByte(nav->buffer_i);
     }else{
-        // relevant_index = lonIndex(nav->buffer_i);
-        // active_buffer = nav->dest_lon_buffer;
-        result = lonIndex(nav->buffer_i) + 1;
+        result = lonIndex(nav->buffer_i) + amount;
         nav->buffer_i = setLonIndex(nav->buffer_i, result);
     }
     return result;
@@ -263,28 +250,19 @@ uint8_t increment_relevant_index(Nav *nav){
 
 uint8_t latIndex(uint8_t buffer_i){
     uint8_t result = buffer_i >> 4;
-    printString("latitude index: ");
-    printBinaryByte(result);
-    printString("\n");
     return result;
 }
 
 uint8_t setLatIndex(uint8_t buffer_i, uint8_t lat_index){
-    printString("setting latitude index to: ");
-    printBinaryByte(lat_index);
-    printString("\n");
     return (buffer_i & 0xF) | ((lat_index & 0xF) << 4);
 }
 uint8_t lonIndex(uint8_t buffer_i){
     uint8_t result = buffer_i & 0xF;
-    printString("longitude index: ");
-    printBinaryByte(result);
-    printString("\n");
     return result;
 }
 
 uint8_t setLonIndex(uint8_t buffer_i, uint8_t lon_index){
-    return buffer_i & lon_index;
+    return ((buffer_i >> 4) << 4) | lon_index;
 }
 
 int main(void)
@@ -302,8 +280,8 @@ int main(void)
         {PC2, &PORTC, &PINC, &DDRC}};
 
     char current_position_buffer[LAT_BUFFER_SIZE] = {0};
-    char lat_buffer[10] = "00.000000";
-    char lon_buffer[11] = "000.000000";
+    char lat_buffer[LAT_BUFFER_SIZE] = LAT_BUFFER_BASELINE;
+    char lon_buffer[LON_BUFFER_SIZE] = LON_BUFFER_BASELINE;
 
     Nav nav = {
         {0, 0},

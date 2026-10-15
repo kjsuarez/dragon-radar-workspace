@@ -1,5 +1,7 @@
 #include <avr/io.h>
 
+#define LAT_BUFFER_BASELINE "00.000000"
+#define LON_BUFFER_BASELINE "000.000000"
 #define LAT_BUFFER_SIZE 10
 #define LON_BUFFER_SIZE 11
 
@@ -34,5 +36,6 @@ uint8_t latIndex(uint8_t buffer_i);
 uint8_t setLatIndex(uint8_t buffer_i, uint8_t lat_index);
 uint8_t lonIndex(uint8_t buffer_i);
 uint8_t setLonIndex(uint8_t buffer_i, uint8_t lon_index);
-uint8_t increment_relevant_index(Nav *nav);
+uint8_t increment_relevant_index(Nav *nav, int8_t amount);
 void handleEnter(Nav *nav);
+void handleClear(Nav *nav);
