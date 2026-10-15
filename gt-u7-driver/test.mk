@@ -78,8 +78,11 @@ clean:
 	$(CLEANUP) $(OBJECTS_PATH)*.o
 	$(CLEANUP) $(BUILD_PATH)*.$(TARGET_EXTENSION)
 	$(CLEANUP) $(RESULTS_PATH)*.txt
-
+testprint:
+	@make test
+	cat tests/build/results/TestParser.txt
 .PRECIOUS: $(BUILD_PATH)Test%.$(TARGET_EXTENSION)
 .PRECIOUS: $(DEPENDS_PATH)%.d
 .PRECIOUS: $(OBJECTS_PATH)%.o
 .PRECIOUS: $(RESULTS_PATH)%.txt
+.PRECIOUS: testprint

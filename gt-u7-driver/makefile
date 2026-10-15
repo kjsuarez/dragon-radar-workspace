@@ -14,12 +14,14 @@ SRC_FILES = $(wildcard src/*.c) #src/main.c src/st-7789.c src/spi.c
 CC_FLAGS = -I./src
 CC_FLAGS += -I./includes
 
+MATH_LIB = -lm
+
 build/$(NAME).hex: build/$(NAME).elf
 	avr-objcopy -j .text -j .data -O ihex build/$(NAME).elf build/$(NAME).hex
 size: build/$(NAME).elf
 	avr-size --mcu=$(MCU) -C build/$(NAME).elf
 build/$(NAME).elf: $(SRC_FILES) $(wildcard includes/*)
-	avr-gcc -mmcu=atmega168 -Wall -Os -o build/$(NAME).elf $(SRC_FILES) -DF_CPU=$(F_CPU) $(CC_FLAGS)
+	avr-gcc -mmcu=atmega168 -Wall -Os -o build/$(NAME).elf $(SRC_FILES) -DF_CPU=$(F_CPU) $(CC_FLAGS) $(MATH_LIB)
 clean:
 	rm -f build/$(NAME).elf build/$(NAME).hex
 flash:
