@@ -1,4 +1,8 @@
-#include <avr/io.h>
+#ifndef TEST
+    #include <avr/io.h>
+#else
+    #include <stdint.h>
+#endif
 
 #define COLUMN_LENGTH 4
 #define ROW_LENGTH 4

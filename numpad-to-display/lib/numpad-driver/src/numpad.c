@@ -1,5 +1,9 @@
 #include "numpad.h"
-#include <avr/io.h>
+#ifndef TEST
+    #include <avr/io.h>
+#else
+    #include <stdint.h>
+#endif
 
 char keys[COLUMN_LENGTH][ROW_LENGTH] = {
     {'1', '2', '3', 'A'},
@@ -55,28 +59,7 @@ char getButtonState(KeyPin columnPins[COLUMN_LENGTH], KeyPin rowPins[ROW_LENGTH]
     return 0;
 }
 
+// I think it's actually just an XOR
 uint8_t debounceNeeded(char current_input, char last_input){
-    if (current_input == 0)
-    {
-        if (last_input == 0)
-        {
-            return 0;
-        }
-        if (last_input != 0)
-        {
-            return 1;
-        }
-    }
-    if (current_input != 0)
-    {
-        if (last_input != current_input)
-        {
-            return 1;
-        }
-        if (last_input == current_input)
-        {
-            return 0;
-        }
-    }
-    return 0;
+    return current_input^last_input;
 }
