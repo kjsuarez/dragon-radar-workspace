@@ -4,6 +4,10 @@ TARGET_EXTENSION=out
 
 .PHONY: clean
 .PHONY: test
+.PHONY: testlibs testall
+
+LIB_PATH = lib/
+LIB_DIRS = $(wildcard $(LIB_PATH)*/)
 
 SRC_PATH = src/
 TEST_PATH = tests/
@@ -17,7 +21,8 @@ RESULTS_PATH = $(BUILD_PATH)results/
 BUILD_SRC_PATH = $(BUILD_PATH) $(DEPENDS_PATH) $(OBJECTS_PATH) $(RESULTS_PATH)
 
 TEST_FILES = $(wildcard $(TEST_PATH)*.c)
-TEST_SRC_FILES = $(SRC_PATH)floatUtility.c $(SRC_PATH)trigUtility.c
+USED_SRC_FILES = $(wildcard $(SRC_PATH)*.c)
+USED_SRC_FILES := $(filter-out src/main.c src/USART.c, $(USED_SRC_FILES))
 
 COMPILE=gcc -c
 LINK=gcc
@@ -26,7 +31,7 @@ MATH_LIB = -lm
 CFLAGS=-I. -I$(UNITY_PATH) -I$(SRC_PATH) -I$(TEST_PATH) -I$(INCLUDES_PATH) -DTEST $(MATH_LIB)
 
 RESULTS = $(patsubst $(TEST_PATH)Test%.c,$(RESULTS_PATH)Test%.txt,$(TEST_FILES) )
-OBJS    = $(patsubst $(SRC_PATH)%.c,$(OBJECTS_PATH)%.o,$(TEST_SRC_FILES))
+OBJS    = $(patsubst $(SRC_PATH)%.c,$(OBJECTS_PATH)%.o,$(USED_SRC_FILES))
 
 PASSED = `grep -s PASS $(RESULTS_PATH)*.txt`
 FAIL = `grep -s FAIL $(RESULTS_PATH)*.txt`
@@ -47,9 +52,10 @@ $(RESULTS_PATH)Test%.txt: $(BUILD_PATH)Test%.$(TARGET_EXTENSION)
 	-./$< > $@ 2>&1
 
 $(BUILD_PATH)Test%.$(TARGET_EXTENSION): $(OBJECTS_PATH)Test%.o $(OBJS) $(OBJECTS_PATH)unity.o
-	$(LINK) -o $@ $^ $(CFLAGS)
+	$(LINK) -o $@ $^ -lm
 
 $(OBJECTS_PATH)%.o:: $(TEST_PATH)%.c
+	@echo "Compiling $< to $@"
 	$(COMPILE) $(CFLAGS) $< -o $@
 
 $(OBJECTS_PATH)%.o:: $(SRC_PATH)%.c
@@ -79,10 +85,17 @@ clean:
 	$(CLEANUP) $(RESULTS_PATH)*.txt
 testprint:
 	@make test
-	cat tests/build/results/TestFloatUtility.txt
+	cat tests/build/results/TestParser.txt
+testlibs:
+	@for dir in $(LIB_DIRS); do \
+		if [ -f $$dir/test.mk ]; then \
+			echo "Testing $$dir"; \
+			$(MAKE) -C $$dir -f test.mk test; \
+		fi; \
+	done
+testall: test testlibs
 .PRECIOUS: $(BUILD_PATH)Test%.$(TARGET_EXTENSION)
 .PRECIOUS: $(DEPENDS_PATH)%.d
 .PRECIOUS: $(OBJECTS_PATH)%.o
 .PRECIOUS: $(RESULTS_PATH)%.txt
 .PRECIOUS: testprint
-.PRECIOUS: test

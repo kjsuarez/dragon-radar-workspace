@@ -12,8 +12,13 @@ MCU = atmega168
 SRC_PATH = src/
 SRC_FILES = $(wildcard $(SRC_PATH)*.c) #src/main.c
 
+LIBRARIES = $(wildcard lib/*)
+LIBRARIES_SRC = $(wildcard lib/*/src/*.c)
+LIBRARIES_INCLUDES = $(sort $(dir $(wildcard lib/*/includes/*.h)))
+
 CC_FLAGS = -I./src
 CC_FLAGS += -I./includes
+CC_FLAGS += $(addprefix -I, $(LIBRARIES_INCLUDES))
 
 MATH_LIB = -lm
 
@@ -21,8 +26,8 @@ build/$(NAME).hex: build/$(NAME).elf
 	avr-objcopy -j .text -j .data -O ihex build/$(NAME).elf build/$(NAME).hex
 size: build/$(NAME).elf
 	avr-size --mcu=$(MCU) -C build/$(NAME).elf
-build/$(NAME).elf: $(SRC_FILES) $(wildcard includes/*)
-	avr-gcc -mmcu=atmega168 -Wall -Os -o build/$(NAME).elf $(SRC_FILES) -DF_CPU=$(F_CPU) $(CC_FLAGS)
+build/$(NAME).elf: $(SRC_FILES) $(LIBRARIES_SRC) $(wildcard includes/*)
+	avr-gcc -mmcu=atmega168 -Wall -Os -o build/$(NAME).elf $(SRC_FILES) $(LIBRARIES_SRC) -DF_CPU=$(F_CPU) $(CC_FLAGS)
 clean:
 	rm -f build/$(NAME).elf build/$(NAME).hex
 flash:
@@ -41,12 +46,17 @@ scaffold:
 	cp -r unity $(PROJECT)/tests/unity
 	cp makefile $(PROJECT)/makefile
 	cp test.mk $(PROJECT)/test.mk
+scaffoldlib:
+	mkdir -p lib
+	mkdir -p lib/$(name)
+	mkdir -p lib/$(name)/src
+	mkdir -p lib/$(name)/includes
+	mkdir -p lib/$(name)/tests
+	cp scaffold/test.mk lib/$(name)/test.mk
+
 local:
 	@make build/comparison.elf
 	./build/comparison.elf
-build/comparison.elf:
-	gcc -o build/comparison.elf comparison2.c src/trigUtility.c -I./src -I./includes -DTEST MATH_LIB
-	# gcc -o build/comparison.elf comparison.c -I./src -I./includes -DTEST -lm
-.PHONY: flash, clean, uart, scaffold, size, local build/comparison.elf
+.PHONY: flash, clean, uart, scaffold, scaffoldlib, size, local build/comparison.elf
 
 include test.mk

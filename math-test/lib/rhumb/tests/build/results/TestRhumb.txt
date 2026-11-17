@@ -1,0 +1,15 @@
+tests/TestRhumb.c:114:test_x:PASS
+tests/TestRhumb.c:115:it_calculates_rhumb_in_NE_quadrant:PASS
+tests/TestRhumb.c:116:it_calculates_rhumb_crossing_NE_to_NW_across_antimeridian:PASS
+tests/TestRhumb.c:117:it_calculates_rhumb_crossing_NE_to_NW_across_meridian:PASS
+tests/TestRhumb.c:118:it_calculates_rhumb_crossing_NE_to_SE:PASS
+tests/TestRhumb.c:120:it_calculates_rhumb_in_NW_quadrant:PASS
+tests/TestRhumb.c:121:it_calculates_rhumb_crossing_NW_to_NE_across_antimeridian:PASS
+tests/TestRhumb.c:122:it_calculates_rhumb_crossing_NW_to_NE_across_meridian:PASS
+tests/TestRhumb.c:124:it_calculates_rhumb_in_SW_quadrant:PASS
+tests/TestRhumb.c:125:it_calculates_rhumb_crossing_SW_to_SE_across_antimeridian:PASS
+tests/TestRhumb.c:126:it_calculates_rhumb_crossing_SW_to_SE_across_meridian:PASS
+
+-----------------------
+11 Tests 0 Failures 0 Ignored 
+OK

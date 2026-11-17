@@ -1,5 +1,3 @@
-// #include "cordic-8.h"
-#include "cordic-16.h"
 #include <math.h>
 #ifndef TEST
 
@@ -7,43 +5,10 @@
     #include <stdio.h>
 #endif
 
-// #define M_PI 3.14159265359
-#define earth_radius 637100 //in meters
+#define earth_radius 637100
 
 float degreeToRadian(float angle){
     return (angle * (M_PI / 180.0));
-}
-
-int cordicDegrees(int angle){
-    if(angle > 90 && angle < 270){
-        angle = 180 - angle;
-    }else if (angle >= 270){
-        angle = angle - 360;
-    }
-    return angle;
-}
-
-void fullCircleCordic(int angle, double *sine,  double *cosine){
-    float radian;
-    int s, c;
-    int cordic_angle = cordicDegrees(angle);
-    radian = degreeToRadian(cordic_angle);
-    cordic((int)(radian * MUL), &s, &c, 16);
-    if (angle > 90 && angle < 270){
-        s = -s;
-        c = -c;
-    }
-    
-    
-    // printf("cordic Angle:%d, cordic Radians:%.6f \n", angle, radian);
-    
-
-    *sine = (double)s/MUL;
-    *cosine = (double)c/MUL;
-}
-
-void cordicPassthrough(int theta, int *s, int *c){
-    cordic((theta*MUL), s, c, 8);
 }
 
 // φ: latitude in radians, λ: longitude in radians
