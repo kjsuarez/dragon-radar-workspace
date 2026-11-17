@@ -1,4 +1,5 @@
 unity
+tests/build/results
 .vscode
 *.code-workspace
 *.elf
